@@ -4,6 +4,8 @@ using System.IO;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 
 namespace Solution
 {
@@ -239,22 +241,24 @@ namespace Solution
             }
         }
 
-        private void Compress()
+        private async void Compress()
         {
-            /*  using (var p2p = new PushToPullStream())
+            BlobContainerClient container = new BlobContainerClient(connectionString, Randomize("sample-container"));
+            Stream source;
+            using (var p2p = new PushToPullStream())
               using (var compressed = new GZipStream(p2p.PushStream, CompressionMode.Compress))
               {
+                  
                   await Task.WhenAll(
-                      Task.Run(() => source
-                          .CopyToAsync(compressed)
+                      Task.Run(() => source.CopyToAsync(compressed)
                           .ContinueWith(_ =>
                           {
                               compressed.Close();
                               p2p.CompleteWrite();
                           })),
-                      Task.Run(() => blobs.UploadFromStreamAsync(p2p.PullStream))
-                  );
-              }*/
+                      Task.Run(() => container.UploadBlobAsync("sdf",p2p.PullStream)
+                  )
+              }
         }
     }
 }
